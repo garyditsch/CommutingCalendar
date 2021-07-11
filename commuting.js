@@ -40,19 +40,48 @@ const {width, height} = document
 // console.log(object)
 
 const draw = (dates) => {
+    // had to reduce the dates to get totals for each day
+    // https://stackoverflow.com/questions/47893084/sum-the-values-for-the-same-dates
+    // had some issues with the dates as objects, but changing to string and comparing worked
+    // https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Date/toLocaleString
+    const reducedDates = dates.reduce(function (allDates, date) {
+        // console.log(allDates)
+        if (allDates.some(function (e) {
+            // console.log(e.date.toLocaleString('en-US') === date.date.toLocaleString('en-US'))
+            return e.date.toLocaleString('en-US') === date.date.toLocaleString('en-US')
+        })) {
+            allDates.filter(function (e) {
+                return e.date.toLocaleString('en-US') === date.date.toLocaleString('en-US')
+            })[0].value += +date.value
+        } else {
+            allDates.push({
+                date: date.date,
+                value: +date.value
+            })
+        }
+        return allDates
+    }, []);
+
+    console.log(reducedDates)
+
+
     // return array with months grouped together. NOTE: nest is deprecated in future d3 versions
     const months = d3.nest()
         // .key(d => d.date.getUTCFullYear())
         .key(d => d.date.toLocaleString('default', { month: 'long' }))
-        .entries(dates)
+        .entries(reducedDates)
         .reverse()
 
+    // console.log(months)
+
     // get array of all values
-    const values = dates.map(c => c.value);
+    const values = reducedDates.map(c => c.value);
     
     // get max/min values 
     const maxValue = d3.max(values);
     const minValue = d3.min(values);
+    console.log(maxValue)
+    console.log(minValue)
     
     // set constants, yearHeight is * 7 for days of week
     const cellSize = 25;
@@ -158,11 +187,11 @@ const draw = (dates) => {
 const drawTheCalendar = async () => {
     const data = await getData(commuting_csv)
     const parsedData = d3.csvParse(data);
-    console.log(parsedData);
+    // console.log(parsedData);
     const dates = await dateValues(parsedData)
-    console.log(dates)
+    // console.log(dates)
     draw(dates);
-    console.log('hello')
+    // console.log('hello')
 }
 drawTheCalendar();
 
