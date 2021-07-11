@@ -34,10 +34,6 @@ const {width, height} = document
     .getElementById("bike_svg")
     .getBoundingClientRect();
 
-// const object = document
-//     .getElementById("svg")
-//     .getBoundingClientRect();
-// console.log(object)
 
 const draw = (dates) => {
     // had to reduce the dates to get totals for each day
@@ -80,8 +76,6 @@ const draw = (dates) => {
     // get max/min values 
     const maxValue = d3.max(values);
     const minValue = d3.min(values);
-    console.log(maxValue)
-    console.log(minValue)
     
     // set constants, yearHeight is * 7 for days of week
     const cellSize = 25;
@@ -114,7 +108,7 @@ const draw = (dates) => {
 
     // function to return week label
     const formatDay = d =>
-        ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"][d.getUTCDay()];
+        ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"][d.getUTCDay()];
     
     // return an index representing day of week: Ex: 0 = Sunday, 6 = Saturday
     const countDay = d => d.getUTCDay();
@@ -125,9 +119,10 @@ const draw = (dates) => {
     const formatDate = d3.utcFormat("%x");
 
 
-    
+    // http://using-d3js.com/04_05_sequential_scales.html
     const colorFn = d3
-            .scaleSequential(d3.interpolateBuGn)
+            .scaleSequential(d3.interpolateBlues)
+            // .scaleSequential(d3.interpolateCool)
             .domain([Math.floor(minValue), Math.ceil(maxValue)]);
     const format = d3.format("+.2%");
 
@@ -145,12 +140,10 @@ const draw = (dates) => {
         .attr("font-size", 12)
         .text(formatDay);
 
-    // console.log(month, '119')
-
     month
         .append("g")
         .selectAll("rect")
-            .data(d => d.values)
+        .data(d => d.values)
         .join("rect")
         .attr("width", cellSize - 1.5)
         .attr("height", cellSize - 1.5)
