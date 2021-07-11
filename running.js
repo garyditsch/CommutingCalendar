@@ -104,7 +104,7 @@ const runDraw = (dates) => {
         .attr("font-size", 16)
         .attr("font-weight", 550)
         .attr("transform", "rotate(270)")
-            .text(d => d.key);
+            .text(d => { return d.key + '  ' + '[' + (d.values.reduce((prev, cur) => { return prev + parseFloat(cur.value)}, 0 )).toFixed(2) + ']' });
 
     // function to return week label
     const formatDay = d =>
