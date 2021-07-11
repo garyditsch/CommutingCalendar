@@ -24,14 +24,14 @@ const dateValues = async (data) => data.map(dv => ({
     }));
 
 //grabbing the first svg element
-const svg = d3.select("#svg");
+const svg = d3.select("#bike_svg");
 
 // getting the width and height of the svg
 // had to look up getBoundingClientRect() as hadn't used it previous
 // https://developer.mozilla.org/en-US/docs/Web/API/Element/getBoundingClientRect
 // lines 37 - 40 can be uncommented to see what is returned when not deconstructed
 const {width, height} = document
-    .getElementById("svg")
+    .getElementById("bike_svg")
     .getBoundingClientRect();
 
 // const object = document
@@ -40,65 +40,85 @@ const {width, height} = document
 // console.log(object)
 
 const draw = (dates) => {
-    const years = d3.nest()
-        .key(d => d.date.getUTCFullYear())
+    // return array with months grouped together. NOTE: nest is deprecated in future d3 versions
+    const months = d3.nest()
+        // .key(d => d.date.getUTCFullYear())
+        .key(d => d.date.toLocaleString('default', { month: 'long' }))
         .entries(dates)
-        .reverse();
+        .reverse()
 
-    console.log(years)
-
+    // get array of all values
     const values = dates.map(c => c.value);
+    
+    // get max/min values 
     const maxValue = d3.max(values);
     const minValue = d3.min(values);
-
-    const cellSize = 15;
+    
+    // set constants, yearHeight is * 7 for days of week
+    const cellSize = 25;
     const yearHeight = cellSize * 7;
 
+    // adding g element to svg
     const group = svg.append("g");  
 
-    const year = group
+    // adds g element for each month with data to svg
+    // gives the y axis value to move g element based on month index within data
+    const month = group
         .selectAll("g")
-        .data(years)
+        .data(months)
         .join("g")
         .attr(
             "transform",
             (d, i) => `translate(50, ${yearHeight * i + cellSize * 1.5})`
         );
 
-    year
+    // add the month label with positioning and style
+    month
         .append("text")
         .attr("x", -5)
-        .attr("y", -30)
+        .attr("y", -35)
         .attr("text-anchor", "end")
         .attr("font-size", 16)
         .attr("font-weight", 550)
         .attr("transform", "rotate(270)")
             .text(d => d.key);
 
+    // function to return week label
     const formatDay = d =>
         ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"][d.getUTCDay()];
-        
+    
+    // return an index representing day of week: Ex: 0 = Sunday, 6 = Saturday
     const countDay = d => d.getUTCDay();
+
+    // https://www.geeksforgeeks.org/d3-js-d3-utcsunday-function/
+    // returns array of all the sundays from a start/end date
     const timeWeek = d3.utcSunday;
     const formatDate = d3.utcFormat("%x");
+
+
+    
     const colorFn = d3
             .scaleSequential(d3.interpolateBuGn)
             .domain([Math.floor(minValue), Math.ceil(maxValue)]);
     const format = d3.format("+.2%");
 
-    year
+    
+    // adds group element that displays add the day of week label 
+    month
         .append("g")
         .attr("text-anchor", "end")
         .selectAll("text")
-                .data(d3.range(7).map(i => new Date(1995, 0, i)))
+        .data(d3.range(7).map(i => new Date(1995, 0, i)))
         .join("text")
         .attr("x", -5)
-                .attr("y", d => (countDay(d) + 0.5) * cellSize)
+        .attr("y", d => (countDay(d) + 0.5) * cellSize)
         .attr("dy", "0.31em")
         .attr("font-size", 12)
         .text(formatDay);
 
-    year
+    // console.log(month, '119')
+
+    month
         .append("g")
         .selectAll("rect")
             .data(d => d.values)
@@ -107,7 +127,7 @@ const draw = (dates) => {
         .attr("height", cellSize - 1.5)
         .attr(
             "x",
-            (d, i) => timeWeek.count(d3.utcYear(d.date), d.date) * cellSize + 10
+            (d, i) => timeWeek.count(d3.utcMonth(d.date), d.date) * cellSize + 10
         )
         .attr("y", d => countDay(d.date) * cellSize + 0.5)
         .attr("fill", d => colorFn(d.value))
@@ -118,7 +138,7 @@ const draw = (dates) => {
         .append("g")
         .attr(
             "transform",
-            `translate(10, ${years.length * yearHeight + cellSize * 4})`
+            `translate(10, ${months.length * yearHeight + cellSize * 4})`
         );
 
     const categoriesCount = 10;
