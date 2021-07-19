@@ -60,7 +60,7 @@ const draw = (dates) => {
         return allDates
     }, []);
 
-    console.log(reducedDates)
+    // console.log(reducedDates)
 
 
     // return array with months grouped together. NOTE: nest is deprecated in future d3 versions

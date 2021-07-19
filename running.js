@@ -13,10 +13,11 @@ const running_csv = "https://gist.githubusercontent.com/garyditsch/7e8b585557461
 
 // map over the data and return a new array with just the formatted date and distance of the commute
 // this format was utilized by the example I worked from would like to improve with additional data
+// convert from km to miles
 // TODO: bring in other data for additional data sources
 const runDateValues = async (data) => data.map(dv => ({
     date: d3.timeDay(new Date(dv['Activity Date'])),
-    value: Number(dv['Distance'])
+    value: Number(dv['Distance']) * 0.6213712
     }));
 
 //grabbing the first svg element
@@ -33,7 +34,7 @@ const runSvg = d3.select("#run_svg");
 const runObject = document
     .getElementById("run_svg")
     .getBoundingClientRect();
-console.log(runObject)
+// console.log(runObject)
 
 const runDraw = (dates) => {
     // had to reduce the dates to get totals for each day
@@ -58,7 +59,7 @@ const runDraw = (dates) => {
         return allDates
     }, []);
 
-    console.log(reducedDates)
+    // console.log(reducedDates)
 
 
     // return array with months grouped together. NOTE: nest is deprecated in future d3 versions
@@ -72,10 +73,13 @@ const runDraw = (dates) => {
 
     // get array of all values
     const values = reducedDates.map(c => c.value);
+    // console.log(values)
     
     // get max/min values 
     const maxValue = d3.max(values);
     const minValue = d3.min(values);
+    // console.log(maxValue)
+    // console.log(minValue)
     
     // set constants, yearHeight is * 7 for days of week
     const cellSize = 25;
@@ -182,9 +186,10 @@ const drawRunTheCalendar = async () => {
     const parsedData = d3.csvParse(data);
     // Need to sort the run dates, had to create date object b/c the string data wouldn't sort properly
     const orderedData = parsedData.sort((a, b) => new Date(a['Activity Date']) - new Date(b['Activity Date']));
-    console.log(orderedData)
+    // console.log(orderedData)
     const dates = await runDateValues(parsedData)
     runDraw(dates);
 }
 drawRunTheCalendar();
+
 
