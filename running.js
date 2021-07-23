@@ -23,18 +23,9 @@ const runDateValues = async (data) => data.map(dv => ({
 //grabbing the first svg element
 const runSvg = d3.select("#run_svg");
 
-// getting the width and height of the svg
-// had to look up getBoundingClientRect() as hadn't used it previous
-// https://developer.mozilla.org/en-US/docs/Web/API/Element/getBoundingClientRect
-// lines 37 - 40 can be uncommented to see what is returned when not deconstructed
-// const {width, height} = document
-//     .getElementById("run_svg")
-//     .getBoundingClientRect();
-
 const runObject = document
     .getElementById("run_svg")
     .getBoundingClientRect();
-// console.log(runObject)
 
 const runDraw = (dates) => {
     // had to reduce the dates to get totals for each day
@@ -42,9 +33,7 @@ const runDraw = (dates) => {
     // had some issues with the dates as objects, but changing to string and comparing worked
     // https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Date/toLocaleString
     const reducedDates = dates.reduce(function (allDates, date) {
-        // console.log(allDates)
         if (allDates.some(function (e) {
-            // console.log(e.date.toLocaleString('en-US') === date.date.toLocaleString('en-US'))
             return e.date.toLocaleString('en-US') === date.date.toLocaleString('en-US')
         })) {
             allDates.filter(function (e) {
@@ -59,9 +48,6 @@ const runDraw = (dates) => {
         return allDates
     }, []);
 
-    // console.log(reducedDates)
-
-
     // return array with months grouped together. NOTE: nest is deprecated in future d3 versions
     const months = d3.nest()
         // .key(d => d.date.getUTCFullYear())
@@ -69,18 +55,13 @@ const runDraw = (dates) => {
         .entries(reducedDates)
         .reverse()
 
-    // console.log(months)
-
     // get array of all values
     const values = reducedDates.map(c => c.value);
-    // console.log(values)
     
     // get max/min values 
     const maxValue = d3.max(values);
     const minValue = d3.min(values);
-    // console.log(maxValue)
-    // console.log(minValue)
-    
+   
     // set constants, yearHeight is * 7 for days of week
     const cellSize = 25;
     const yearHeight = cellSize * 7;
@@ -185,8 +166,7 @@ const drawRunTheCalendar = async () => {
     const data = await getRunData(running_csv)
     const parsedData = d3.csvParse(data);
     // Need to sort the run dates, had to create date object b/c the string data wouldn't sort properly
-    const orderedData = parsedData.sort((a, b) => new Date(a['Activity Date']) - new Date(b['Activity Date']));
-    // console.log(orderedData)
+    // const orderedData = parsedData.sort((a, b) => new Date(a['Activity Date']) - new Date(b['Activity Date']));
     const dates = await runDateValues(parsedData)
     runDraw(dates);
 }
