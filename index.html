@@ -9,10 +9,19 @@
         body {
             height: 97%;
         }
+        .milestone-container {
+            display: grid;
+            justify-content: center;
+            grid-template-columns: 900px;
+        }
         .grid-container {
             display: grid;
             justify-content: center;
             grid-template-columns: 300px 300px 300px;
+        }
+        #milestone {
+            height: 150px;
+            width: 900px;
         }
     
         #bike_svg {
@@ -28,6 +37,10 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/d3-color/1.2.1/d3-color.js"></script>
 </head>
     <body>
+        <div class="milestone-container">
+            <h2>50 Mile Milestones in 2021</h2>
+            <svg id="milestone"></svg>
+        </div>
         <div class="grid-container">
             <div>
                 <h2>Did I Commute</h2>
@@ -50,5 +63,6 @@
     <script src="running.js"></script>
     <script src="barChart.js"></script>
     <script src="streak.js"></script>
+    <script src="milestone.js"></script>
     <!-- <script>alert('hi')</script> -->
 </html>

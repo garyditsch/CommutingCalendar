@@ -1,7 +1,7 @@
 const streakCanvas = document.getElementById('streakText');
 
 const getStreak = (data) => {
-    console.log('data', data)
+    // console.log('data', data)
     let streak = 1;
     let tempStreak = 1;
 
