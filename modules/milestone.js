@@ -1,33 +1,10 @@
 // https://www.d3indepth.com/scales/
 
-const getMilestones = (data) => {
-    const fiftyMiles = []
-    let milestoneCount = 1
-    let runTotal = 0
-
-    for(i=0; i < data.length; i++){
-        runTotal = runTotal + data[i].value
-        if(runTotal === 50){
-            milestoneCount = milestoneCount + 1
-            fiftyMiles.push({'date': data[i], 'miles': runTotal})
-        } else if ((runTotal >= 50 * milestoneCount) && (milestoneCount != 0)) {
-            milestoneCount = milestoneCount + 1
-            fiftyMiles.push({ 'date': data[i], 'miles': runTotal })
-        }
-    }
-    return fiftyMiles;
-}
-
-const drawMilestones = (fiftyMiles) => {
-    console.log(fiftyMiles)
+const draw = (fiftyMiles, svg, startDate, endDate) => {
     const margin = { 'left': 20, 'right': 20 }
     const milestoneWidth = 900 - margin.left - margin.right
     const monthWidth = milestoneWidth / 12
     const monthPadding = 5
-    const timeline = d3.select('#milestone')
-
-    const startDate = new Date('1/1/2021').getTime()
-    const endDate = new Date('12/31/2021').getTime()
 
     const monthRange = d3.range(0, 12, 1)
     const monthLabels = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec']
@@ -40,7 +17,7 @@ const drawMilestones = (fiftyMiles) => {
         .domain([0, 12])
         .range([0, milestoneWidth])
 
-    timeline
+    svg
         .append("g")
             .append("line")
             .attr('stroke', 'blue')
@@ -50,7 +27,7 @@ const drawMilestones = (fiftyMiles) => {
             .attr('y1', 60)
             .attr('y2', 60)
 
-    timeline
+    svg
         .append("g")
         .selectAll('text')
         .data(fiftyMiles)
@@ -59,10 +36,10 @@ const drawMilestones = (fiftyMiles) => {
         .attr('y', (d, i) => { if(i % 2 === 0){ return 15 } else { return 45 }})
         .attr('height', 45)
         .attr('width', 25)
-        .text(d => d.miles.toFixed(0).toString())
+        .text((d, i) => i + 1)
         .style('fill', '#000')
 
-    timeline
+    svg
         .append("g")
         .selectAll('line')
         .data(fiftyMiles)
@@ -74,7 +51,7 @@ const drawMilestones = (fiftyMiles) => {
         .attr('stroke', 'blue')
         .attr('stroke-width', '2')
 
-    timeline
+    svg
         .append("g")
         .selectAll("circle")
         .data(fiftyMiles)
@@ -86,8 +63,9 @@ const drawMilestones = (fiftyMiles) => {
         .attr('cy', 60)
         .attr('r', 10)
         .style('opacity', 0.4)
+        .style('visibility', 'visible')
 
-    timeline
+    svg
         .append("g")
         .selectAll('rect')
         .data(monthRange)
@@ -99,7 +77,7 @@ const drawMilestones = (fiftyMiles) => {
         .style('fill', "rgb(209, 227, 243)")
 
 
-    timeline
+    svg
         .append("g")
         .selectAll('text')
         .data(monthRange)
@@ -110,17 +88,36 @@ const drawMilestones = (fiftyMiles) => {
         .attr('width', 25)
         .text(d => monthLabels[d])
         .style('fill', '#000')
+
+    svg
+        .append("g")
+        .selectAll("rect")
+        .data(fiftyMiles)
+        .enter().append('rect')
+        .attr('x', 0 + margin.left)
+        .attr('y', (d, i) => (40 * i) + 125)
+        .attr('height', 30)
+        .attr('width', milestoneWidth)
+        .style('fill', "rgb(241, 247, 253)")
+
+    svg
+        .append("g")
+        .selectAll('text')
+        .data(fiftyMiles)
+        .enter().append('text')
+        .attr('x', 5 + margin.left)
+        .attr('y', (d, i) => (40 * i) + 145)
+        .attr('height', 45)
+        .attr('width', milestoneWidth)
+        .text((d, i) => `${i+1} //  Date: ${d.date.date.toLocaleDateString(
+            'en-US',
+            {
+                year: 'numeric',
+                month: 'long',
+                day: 'numeric'
+            }
+        )}  // Total Miles: ${d.miles.toFixed(0)}`)
+        .style('fill', '#000')
 }
 
-const drawRunTheMilestoneChart = async () => {
-    const data = await getRunData(running_csv)
-    const parsedData = d3.csvParse(data);
-    const orderedData = parsedData.sort((a, b) => new Date(a['Activity Date']) - new Date(b['Activity Date']));
-    // console.log(orderedData)
-    const dates = await runDateValues(orderedData)
-    console.log(orderedData)
-    const milestones = getMilestones(dates)
-    console.log(milestones)
-    drawMilestones(milestones);
-}
-drawRunTheMilestoneChart();
+export { draw }

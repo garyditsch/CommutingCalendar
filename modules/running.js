@@ -1,33 +1,4 @@
-
-
-// Fetch the data from the csv file
-const getRunData = async (url) => {
-    const response = await fetch(url);
-    const data = await response.text();
-    return data
-}
-
-// Where I save the csv data
-const running_csv = "https://gist.githubusercontent.com/garyditsch/7e8b58555746148d10009f9954a9e690/raw/strava_run_data_2021.csv"
-// https://gist.githubusercontent.com/garyditsch/7e8b58555746148d10009f9954a9e690/raw/d52398ff228567d16030e6a771c3bdd4dada1f89/strava_run_data_2021.csv
-
-// map over the data and return a new array with just the formatted date and distance of the commute
-// this format was utilized by the example I worked from would like to improve with additional data
-// convert from km to miles
-// TODO: bring in other data for additional data sources
-const runDateValues = async (data) => data.map(dv => ({
-    date: d3.timeDay(new Date(dv['Activity Date'])),
-    value: Number(dv['Distance']) * 0.6213712
-    }));
-
-//grabbing the first svg element
-const runSvg = d3.select("#run_svg");
-
-const runObject = document
-    .getElementById("run_svg")
-    .getBoundingClientRect();
-
-const runDraw = (dates) => {
+const draw = (dates, svg) => {
     // had to reduce the dates to get totals for each day
     // https://stackoverflow.com/questions/47893084/sum-the-values-for-the-same-dates
     // had some issues with the dates as objects, but changing to string and comparing worked
@@ -67,7 +38,7 @@ const runDraw = (dates) => {
     const yearHeight = cellSize * 7;
 
     // adding g element to svg
-    const group = runSvg.append("g");  
+    const group = svg.append("g");  
 
     // adds g element for each month with data to svg
     // gives the y axis value to move g element based on month index within data
@@ -140,36 +111,7 @@ const runDraw = (dates) => {
         .attr("fill", d => colorFn(d.value))
         .append("title")
             .text(d => `${formatDate(d.date)}: ${d.value.toFixed(2)}`);
-
-    const legend = group
-        .append("g")
-        .attr(
-            "transform",
-            `translate(10, ${months.length * yearHeight + cellSize * 4})`
-        );
-
-    const categoriesCount = 10;
-    const categories = [...Array(categoriesCount)].map((_, i) => {
-    const upperBound = (maxValue / categoriesCount) * (i + 1);
-    const lowerBound = (maxValue / categoriesCount) * i;
-
-    return {
-        upperBound,
-        lowerBound,
-        color: d3.interpolateBuGn(upperBound / maxValue),
-        selected: true
-        };
-    });
 }
 
-const drawRunTheCalendar = async () => {
-    const data = await getRunData(running_csv)
-    const parsedData = d3.csvParse(data);
-    // Need to sort the run dates, had to create date object b/c the string data wouldn't sort properly
-    // const orderedData = parsedData.sort((a, b) => new Date(a['Activity Date']) - new Date(b['Activity Date']));
-    const dates = await runDateValues(parsedData)
-    runDraw(dates);
-}
-drawRunTheCalendar();
-
+export { draw };
 
